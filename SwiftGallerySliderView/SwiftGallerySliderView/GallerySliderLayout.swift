@@ -125,7 +125,7 @@ class GallerySliderLayout: UICollectionViewFlowLayout {
     
     func setEffectViewAlpha(_ percent: CGFloat, for indexPath: IndexPath) {
         let cell: GallerySliderCell? = (collectionView?.cellForItem(at: indexPath) as? GallerySliderCell)
-        cell?.mask?.alpha = max((1 - percent) * 0.6, 0.2)
+        cell?.cellMaskView?.alpha = max((1 - percent) * 0.6, 0.2)
         cell?.title?.layer.transform = CATransform3DMakeScale(0.5 + 0.5 * percent, 0.5 + 0.5 * percent, 1)
         cell?.title?.center = CGPoint(x: CGFloat(UIScreen.main.bounds.size.width / 2), y: CGFloat(CELL_HEIGHT / 2 + (CELL_CURRHEIGHT - CELL_HEIGHT) / 2 * percent))
         cell?.desc?.layer.transform = CATransform3DMakeScale(0.5 + 0.5 * percent, 0.5 + 0.5 * percent, 1)
