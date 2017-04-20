@@ -33,32 +33,51 @@ class PhotoLayout: UICollectionViewFlowLayout {
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let newRect = rect.union(CGRect(x: 0, y: -rowHeight, width: 0, height: 0))
         let attributes = super.layoutAttributesForElements(in: newRect) ?? []
+//        print("---attr---")
         for (i, attr) in attributes.enumerated() {
             attr.zIndex = i
             let f = self.collectionView!.convert(attr.frame, to: keyWindow)
+            if f.origin.y < 0 {
+                attr.frame.size.height = rowHeight
+            }
             if f.origin.y > 0 && f.origin.y < highlightHeight && i != 0 {
                 attr.frame.size.height += highlightHeight - f.origin.y
                 attr.frame.origin.y -= highlightHeight - f.origin.y
             }
-            if i == 0 && attr.frame.origin.y == rowHeight {
+            // 固定第一行
+            if i == 0 && f.origin.y > 0 && attr.frame.origin.y == rowHeight {
                 attr.frame.size.height = highlightHeight
                 attr.frame.origin.y = 0
             }
+            attr.frame.size.height = min(attr.frame.size.height, highlightHeight)
+//            print("\(f) - \(attr.frame)")
         }
+//        print("---")
         return attributes
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        var rect = CGRect(origin: proposedContentOffset, size: collectionView!.frame.size)
-//        let attributes = layoutAttributesForElements(in: rect)
-//        let attr = attributes!.first!
-//        let c = self.collectionView!.convert(attr.center, to: keyWindow)
-//        if c.x > 100 {
-//            rect.origin.x += screenWidth / 2 - c.x
-//        } else if c.x < 0 {
-//            rect.origin.x += c.x - 10
-//        }
-        return rect.origin
+        var newOffset = proposedContentOffset
+        let rect = CGRect(x: 0, y: -rowHeight*2, width: screenWidth, height: collectionView!.contentSize.height)
+        let attributes = layoutAttributesForElements(in: rect) ?? []
+//        print("---offset---")
+        for attr in attributes {
+            let f = self.collectionView!.convert(attr.frame, to: keyWindow)
+            let autualY = f.origin.y
+            let absY = abs(f.origin.y)
+            if autualY < 0 && absY < rowHeight / 2 {
+//                print("autualY:\(autualY), \(f)")
+                newOffset.y -= absY
+                break
+            }
+            if autualY < 0 && absY > rowHeight / 2 && absY < rowHeight {
+//                print("autualY:\(autualY), \(f)")
+                newOffset.y += rowHeight - absY
+                break
+            }
+        }
+//        print("---")
+        return newOffset
     }
     
     required init?(coder aDecoder: NSCoder) {

@@ -10,4 +10,15 @@ import UIKit
 
 class PhotoCell: UICollectionViewCell {
     
+    let titleLabel: UILabel
+    
+    override init(frame: CGRect) {
+        titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 100))
+        super.init(frame: frame)
+        addSubview(titleLabel)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }

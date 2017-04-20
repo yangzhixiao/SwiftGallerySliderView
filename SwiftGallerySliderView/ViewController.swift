@@ -14,10 +14,15 @@ let keyWindow = UIApplication.shared.delegate!.window!!
 
 class ViewController: UIViewController {
     
+    var data: [UIColor] = []
+    
     var collectionView: UICollectionView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        for _ in 0..<5 {
+            data.append(UIColor.random)
+        }
         initCollectionView()
     }
 
@@ -36,16 +41,15 @@ class ViewController: UIViewController {
 extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 20
+        return data.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as? PhotoCell
-        cell?.backgroundColor = UIColor.random
+        cell?.backgroundColor = data[indexPath.row]
+        cell?.titleLabel.text = "\(indexPath.row)"
         return cell!
     }
-    
-    
     
 }
 
