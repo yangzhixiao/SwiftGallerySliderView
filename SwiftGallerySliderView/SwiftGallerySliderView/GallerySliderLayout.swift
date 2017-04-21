@@ -16,22 +16,32 @@ class GallerySliderLayout: UICollectionViewFlowLayout {
     /// 正常的高度
     var normalHeight: CGFloat = 100
     
-    // 基准视图，跟collectionView的frame相同的视图，用来计算第一片的相对屏幕位置
+    /// 基准视图，跟collectionView的frame相同的视图，用来计算第一片的相对屏幕位置
     private let baseFrameView: UIView
+    
+    /// 是否打印调试信息
+    var debug: Bool = true
+    
+    var onCellFrameChange: ((_ attr: UICollectionViewLayoutAttributes, _ frame: CGRect)->Void)?
     
     private override init() {
         baseFrameView = UIView(frame: CGRect.zero)
         super.init()
     }
     
-    convenience init(collectionFrame: CGRect) {
+    convenience init(collectionFrame: CGRect, maxHeight: CGFloat, normalHeight: CGFloat) {
         self.init()
-        self.itemSize = CGSize(width: screenWidth, height: normalHeight)
+        self.itemSize = CGSize(width: collectionFrame.size.width, height: normalHeight)
         self.minimumInteritemSpacing = 0
         self.minimumLineSpacing = 0
         self.scrollDirection = .vertical
+        self.highlightHeight = maxHeight
+        self.normalHeight = normalHeight
         baseFrameView.frame = collectionFrame
-        self.sectionInset = UIEdgeInsets(top: normalHeight, left: 0, bottom: collectionFrame.height-highlightHeight, right: 0)
+        self.sectionInset = UIEdgeInsets(top: highlightHeight - normalHeight,
+                                         left: 0,
+                                         bottom: collectionFrame.height - highlightHeight,
+                                         right: 0)
     }
     
     override func prepare() {
@@ -48,32 +58,36 @@ class GallerySliderLayout: UICollectionViewFlowLayout {
             return super.layoutAttributesForElements(in: rect)
         }
         
-        // 获取所有attributes，如果不是所有，剩下的就不会显示，不知道为什么...
-        let newRect = rect.union(CGRect(x: 0, y: -normalHeight, width: 0, height: 0))
-        let attributes = super.layoutAttributesForElements(in: newRect) ?? []
-
-        for (i, attr) in attributes.enumerated() {
+        // 获取可见的attributes
+        let attributes = super.layoutAttributesForElements(in: rect) ?? []
+        
+        log("---attr--->")
+        for attr in attributes {
             // 设置层次，让下面的比上面的大，挡住上面的
-            attr.zIndex = i
+            attr.zIndex = attr.indexPath.row
             // 相对于基准视图的位置
             let f = collectionView.convert(attr.frame, to: baseFrameView)
+            log("attr: \(attr.frame), f: \(f), index: \(attr.indexPath.row)")
+            
+            // 固定第一行
+            if attr.indexPath.row == 0 && f.origin.y > 0 && attr.frame.origin.y == highlightHeight - normalHeight {
+                attr.frame.size.height = highlightHeight
+                attr.frame.origin.y = 0
+            }
             // 顶部上面被遮挡了的，都变回正常高度
             if f.origin.y < 0 {
                 attr.frame.size.height = normalHeight
             }
-            // 刚好在变化当中的两个片，改变高度的同时，调整y值
-            if f.origin.y > 0 && f.origin.y < highlightHeight && i != 0 {
+            // 刚好在变化当中的那个片，改变高度的同时，调整y值
+            if f.origin.y > 0 && f.origin.y < highlightHeight && attr.indexPath.row != 0 {
                 attr.frame.size.height += highlightHeight - f.origin.y
                 attr.frame.origin.y -= highlightHeight - f.origin.y
             }
-            // 固定第一行
-            if i == 0 && f.origin.y > 0 && attr.frame.origin.y == normalHeight {
-                attr.frame.size.height = highlightHeight
-                attr.frame.origin.y = 0
-            }
             // 最大高度只能是设定值highlightHeight
             attr.frame.size.height = min(attr.frame.size.height, highlightHeight)
+            onCellFrameChange?(attr, f)
         }
+        log("<---attr---")
 
         return attributes
     }
@@ -85,7 +99,7 @@ class GallerySliderLayout: UICollectionViewFlowLayout {
         }
         
         var newOffset = proposedContentOffset
-        let rect = CGRect(x: 0, y: -normalHeight*2, width: screenWidth, height: collectionView.contentSize.height)
+        let rect = CGRect(x: 0, y: -normalHeight*2, width: collectionView.contentSize.width, height: collectionView.contentSize.height)
         let attributes = layoutAttributesForElements(in: rect) ?? []
         
         // 加速度为0，简单判断最接近顶部的第一片的位置即可
@@ -131,6 +145,12 @@ class GallerySliderLayout: UICollectionViewFlowLayout {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func log(_ o: Any?) {
+        if debug, let info = o {
+            print(info)
+        }
     }
     
 }

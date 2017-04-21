@@ -19,21 +19,29 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        for _ in 0..<100 {
+        for _ in 0..<50 {
             data.append(UIColor.random)
         }
         initCollectionView()
     }
 
     func initCollectionView() {
-        let frame = CGRect(x: 0, y: 64, width: screenWidth, height: screenHeight-64-49)
-        let layout = GallerySliderLayout(collectionFrame: frame)
+        let frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight)
+        let layout = GallerySliderLayout(collectionFrame: frame, maxHeight: 200, normalHeight: 100)
         collectionView = UICollectionView(frame: frame, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = UIColor.lightGray
         collectionView.register(GallerySliderCell.self, forCellWithReuseIdentifier: "GallerySliderCell")
         view.addSubview(collectionView)
+        
+        layout.onCellFrameChange = { [unowned self] attr, frame in
+            self.collectionView.visibleCells.forEach({ (cell) in
+                if let `cell` = cell as? GallerySliderCell {
+                    cell.ajustCell(attr: attr, frame: frame)
+                }
+            })
+        }
     }
 
 }
@@ -48,6 +56,7 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GallerySliderCell", for: indexPath) as? GallerySliderCell
         cell?.backgroundColor = data[indexPath.row]
         cell?.titleLabel.text = "\(indexPath.row)"
+        cell?.indexPath = indexPath
         return cell!
     }
     
