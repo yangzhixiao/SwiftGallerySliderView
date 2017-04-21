@@ -10,7 +10,6 @@ import UIKit
 
 let screenWidth = UIScreen.main.bounds.width
 let screenHeight = UIScreen.main.bounds.height
-let keyWindow = UIApplication.shared.delegate!.window!!
 
 class ViewController: UIViewController {
     
@@ -27,13 +26,13 @@ class ViewController: UIViewController {
     }
 
     func initCollectionView() {
-        let layout = PhotoLayout()
+        let layout = GallerySliderLayout()
         collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight), collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.decelerationRate = 0.000001
         collectionView.backgroundColor = UIColor.lightGray
-        collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: "PhotoCell")
+        collectionView.register(GallerySliderCell.self, forCellWithReuseIdentifier: "GallerySliderCell")
         view.addSubview(collectionView)
     }
 
@@ -46,7 +45,7 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as? PhotoCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GallerySliderCell", for: indexPath) as? GallerySliderCell
         cell?.backgroundColor = data[indexPath.row]
         cell?.titleLabel.text = "\(indexPath.row)"
         return cell!

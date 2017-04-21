@@ -1,5 +1,5 @@
 //
-//  PhotoCell.swift
+//  GallerySliderCell.swift
 //  CollectionviewDemo
 //
 //  Created by 杨智晓 on 2017/4/19.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PhotoCell: UICollectionViewCell {
+class GallerySliderCell: UICollectionViewCell {
     
     let titleLabel: UILabel
     
