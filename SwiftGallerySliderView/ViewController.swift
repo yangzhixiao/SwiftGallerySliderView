@@ -20,7 +20,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        for _ in 0..<5 {
+        for _ in 0..<100 {
             data.append(UIColor.random)
         }
         initCollectionView()
@@ -31,6 +31,7 @@ class ViewController: UIViewController {
         collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight), collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.decelerationRate = 0.000001
         collectionView.backgroundColor = UIColor.lightGray
         collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: "PhotoCell")
         view.addSubview(collectionView)
