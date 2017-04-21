@@ -26,11 +26,11 @@ class ViewController: UIViewController {
     }
 
     func initCollectionView() {
-        let layout = GallerySliderLayout()
-        collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight), collectionViewLayout: layout)
+        let frame = CGRect(x: 0, y: 64, width: screenWidth, height: screenHeight-64-49)
+        let layout = GallerySliderLayout(collectionFrame: frame)
+        collectionView = UICollectionView(frame: frame, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.decelerationRate = 0.000001
         collectionView.backgroundColor = UIColor.lightGray
         collectionView.register(GallerySliderCell.self, forCellWithReuseIdentifier: "GallerySliderCell")
         view.addSubview(collectionView)
